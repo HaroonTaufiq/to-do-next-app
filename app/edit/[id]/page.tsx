@@ -1,16 +1,17 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { ArrowLeft } from "lucide-react"
 
 export default function EditTaskPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [task, setTask] = useState({ title: "" })
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -22,6 +23,8 @@ export default function EditTaskPage({ params }: { params: { id: string } }) {
         }
       } catch (error) {
         console.error("Failed to fetch task:", error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -38,38 +41,43 @@ export default function EditTaskPage({ params }: { params: { id: string } }) {
       })
 
       if (response.ok) {
-        router.push("/dashboard")
-        router.refresh()
+        router.back()
       }
     } catch (error) {
       console.error("Failed to update task:", error)
     }
   }
 
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
-    <div className="min-h-screen bg-[#AFDDE5] p-4 flex items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl text-[#003135]">Edit Task</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={updateTask} className="space-y-4">
-            <Input
-              value={task.title}
-              onChange={(e) => setTask({ ...task, title: e.target.value })}
-              className="bg-white"
-            />
-            <div className="flex gap-2">
-              <Button type="submit" className="flex-1 bg-[#964734] hover:bg-[#964734]/90">
-                Update Task
-              </Button>
-              <Button type="button" variant="outline" onClick={() => router.back()} className="flex-1">
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <Button variant="ghost" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <ThemeToggle />
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Edit Task</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={updateTask} className="space-y-4">
+              <Input
+                value={task.title}
+                onChange={(e) => setTask({ ...task, title: e.target.value })}
+                placeholder="Task title"
+              />
+              <Button type="submit">Save Changes</Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
