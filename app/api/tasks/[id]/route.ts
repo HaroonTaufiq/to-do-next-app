@@ -4,21 +4,18 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { z } from "zod";
 
-interface Params {
-  params: { id: string };
-}
+// Update type definition for params - remove Promise wrapper
+type Params = { id: string };
 
 // Get single task
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request, { params }: { params: Params }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    // Remove await from params.id since it's no longer a Promise
     const { id } = params;
     const task = await db.task.findUnique({
       where: {
@@ -44,14 +41,15 @@ const updateTaskSchema = z.object({
   completed: z.boolean().optional(),
 });
 
-export async function PATCH(req: Request, context: Params) {
+export async function PATCH(req: Request, { params }: { params: Params }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { id } = context.params;
+    // Remove await from params.id
+    const { id } = params;
     const body = await req.json();
     const { title, completed } = updateTaskSchema.parse(body);
 
@@ -77,14 +75,15 @@ export async function PATCH(req: Request, context: Params) {
 }
 
 // Delete task
-export async function DELETE(req: Request, context: Params) {
+export async function DELETE(req: Request, { params }: { params: Params }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { id } = context.params;
+    // Remove await from params.id
+    const { id } = params;
     await db.task.delete({
       where: {
         id,

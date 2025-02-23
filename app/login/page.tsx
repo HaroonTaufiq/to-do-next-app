@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { signIn } from "next-auth/react"
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -11,8 +12,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ReloadIcon } from "@radix-ui/react-icons"
+import { Loading } from "@/components/ui/loading"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
@@ -104,6 +106,14 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <LoginForm />
+    </Suspense>
   )
 }
 

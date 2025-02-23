@@ -58,12 +58,12 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ token, session }) {
-      if (token) {
+      if (token && session.user) {
         session.user = {
-          id: token.id,
-          name: token.name,
-          email: token.email,
-          image: token.picture,
+          id: token.id as string,
+          name: token.name || "Anonymous User",
+          email: token.email || "",
+          image: token.picture || null,
         };
       }
       return session;
